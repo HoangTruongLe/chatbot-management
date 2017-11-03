@@ -1,0 +1,12 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="col-sm-6 col-xs-6">
+    <a class="navbar-brand title-chatbot" href="/">AI ChatBot</a>
+  </div>
+  <div class="col-sm-6 col-xs-6 menu-right text-right">
+    <% if current_user %>
+      <%= link_to destroy_user_session_path , :method => :delete do %>
+        <%= fa_icon "sign-out" %> <%= t('devise.sessions.logout') %>
+      <% end %>
+    <% end %>
+  </div>
+</nav>

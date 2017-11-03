@@ -1,0 +1,86 @@
+<div class="col-sm-12 m_infor-right text-right m_messages">
+  <span class="m_infor-username mrg20R">登録者：<%= @message.created_user.name if @message.created_user %></span>
+  <span class="m_infor-username mrg20R">最終更新者： <%= @message.updated_user.name if @message.updated_user %></span>
+  <span class="m_infor-updated mrg20R">更新日時：<%= format_datetime(@message.updated_at) %></span>
+</div>
+<div class="row">
+  <div class="col-sm-12 col-lg-12">
+    <h5>メッセージ設定</h5>
+    <hr>
+  </div>
+</div>
+<table class='table table-bordered'>
+  <tbody >
+    <tr class='active'>
+      <td style="width:15%; text-align:right">id</td>
+      <td><%= @message.id %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">タイプ</td>
+      <td><%= Message.message_types.key(@message.message_type) %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">アクティビティ</td>
+      <td><%= format_activity(@message.activity) %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">プライオリティ</td>
+      <td><%= @message.priority %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">チャットボット</td>
+      <td>'chatbot'</td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">主キーワード</td>
+      <td><%= @message.try(:keyword).try(:name) %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">関連キーワード</td>
+      <td><%= @message.keywords.map(&:name).join(', ') %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">カテゴリー</td>
+      <td><%= @message.try(:keyword).try(:master_category).try(:name) %></td>
+    </tr>
+    <tr class='active'>
+      <td style="width:15%; text-align:right">タグ</td>
+      <td><%= @message.tags.map(&:name).join(', ') %></td>
+    </tr>
+  </tbody>
+</table>
+<h5>メッセージ本文</h5>
+<hr>
+<table id="m_content" class="m_content" data-count="<%= message_contents.count %>">
+  <tbody class='render_section'>
+    <% message_contents.each do |msg_content| %>
+      <% if msg_content.content_type == "LinkCard" %>
+        <%= render partial: 'linkcard_review', locals: { msg_content: msg_content, link_card: msg_content.content, preview: true } %>
+      <% end %>
+      <% if msg_content.content_type == "PhotoGroup" %>
+        <% photos = Photo.where(message_id: msg_content.message_id , photo_group_id: msg_content.content_id) %>
+        <% if photos.count > 0 %>
+          <%= render partial: 'photo_review', locals: { msg_content: msg_content, photos: photos, message_id: msg_content.message_id, content_id: msg_content.content_id, new_record: false, preview: true } %>
+        <% end %>
+      <% end %>
+      <% if msg_content.content_type == "VideoGroup" %>
+        <% video = Video.where(message_id: msg_content.message_id , video_group_id: msg_content.content_id).compact.last %>
+        <% if video %>
+          <%= render partial: 'video_review', locals: { msg_content: msg_content, video: video, message_id: msg_content.message_id, content_id: msg_content.content_id, new_record: false, preview: true } %>
+        <% end %>
+      <% end %>
+      <% if msg_content.content_type == "TextMessage" %>
+        <%= render partial: 'text_review', locals: { msg_content: msg_content, text_message: msg_content.content, preview: true } %>
+      <% end %>
+      <% if msg_content.content_type == "Question" %>
+        <%= render partial: 'question_review', locals: { msg_content: msg_content, question: msg_content.content, preview: true } %>
+      <% end %>
+      <% if msg_content.content_type == "ProductMessage" %>
+        <%= render partial: 'product_message_review', locals: { msg_content: msg_content, product_message: msg_content.content, preview: true } %>
+      <% end %>
+      <% if msg_content.content_type == "Quote" %>
+        <%= render partial: 'quote_review', locals: { msg_content: msg_content, quote: msg_content.content, preview: true } %>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,88 @@
+<%= form_for @question, url: @question.id.present? ? message_path : messages_path, html: { class: "form-horizontal" } do |f| %>
+  <div class="row">
+    <div class="col-sm-6">
+      <h4><%= t('.title') %></h4>
+    </div>
+    <div class="col-sm-6 text-right padding-0">
+      <%= link_to "#{t('.cancel_button')}", messages_path, class: "btn btn-cancel" %>
+      <%= f.submit "#{@question.id.present? ? t('.update_button') : t('.save_button')}", class: "btn btn-save" %>
+    </div>
+  </div>
+
+  <% if @question.errors.any? %>
+  <br>
+  <div class="error-log">
+    <h5><%= t("activerecord.errors.error_message")%></h5>
+    <ul>
+      <% @question.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+  <% end %>
+  <div class="row form-input-wrapper">
+    <div class="form-group">
+      <%= f.label :answer, class: "control-label col-sm-2" %>
+      <div class="col-sm-9">
+        <%= f.select :answer_id, Answer.includes(:question).order(:question_id).all.map {|ans| ["#{ans.id} - #{ans.content.truncate(25)} - #{ans.question.content.truncate(25)}", ans.id]}, { include_blank: t('.please_select')}, { class: "form-control" } %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :content, class: "control-label col-sm-2 required" %>
+      <div class="col-sm-9">
+        <%= f.text_area :content, class: "form-control", placeholder: true %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :keyword, class: "control-label col-sm-2 required" %>
+      <div class="col-sm-9">
+        <%= f.text_field :keyword, class: "form-control", placeholder: true %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :type, class: "control-label col-sm-2" %>
+      <div class="col-sm-9">
+        <%= f.select :type, Question.question_types, {}, { class: "form-control" } %>
+      </div>
+    </div>
+    <div class="form-group">
+      <%= f.label :level, class: "control-label col-sm-2" %>
+      <div class="col-sm-9">
+        <%= f.text_field :level, class: "form-control", placeholder: true %>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <%= f.fields_for :question_descriptions do |qd| %>
+          <%= render 'question_description_fields', f: qd %>
+        <% end %>
+      </div>
+      <div class="row">
+        <div class="col-sm-9 col-sm-offset-2">
+          <%= link_to_add_association t('.add_description'), f, :question_descriptions, { class: "btn btn-save"} %>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <%= f.fields_for :answers do |ans| %>
+          <%= render 'answer_fields', f: ans %>
+        <% end %>
+      </div>
+      <div class="row">
+        <div class="col-sm-9 col-sm-offset-2">
+          <%= link_to_add_association t('.add_answer'), f, :answers, { class: "btn btn-save"} %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 text-left padding-0">
+      <%= link_to("#{t('.delete_button')}", message_path(@question), method: "delete", data: { confirm: t('.delete_confirm') }, class: "btn btn-cancel btn-delete") if @question.id.present?%>
+    </div>
+    <div class="col-sm-6 text-right padding-0">
+      <%= link_to "#{t('.cancel_button')}", messages_path, class: "btn btn-cancel" %>
+      <%= f.submit "#{@question.id.present? ? t('.update_button') : t('.save_button')}", class: "btn btn-save" %>
+    </div>
+  </div>
+<% end %>

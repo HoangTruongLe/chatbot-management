@@ -1,0 +1,123 @@
+<% if @keywords.size > 0 %>
+  <% @keywords.each do |keyword| %>
+    <tr>
+      <td class="text-center"><%= keyword.id %></td>
+      <td><%= keyword.name %></td>
+      <td><%= keyword.try(:master_category).try(:name) %></td>
+      <td class="text-center">
+        <button class='btn btn-primary btn-blue btn-action' onclick="insert_relatetive_keyword('<%= keyword.id %>')">
+          選択
+        </button>
+      </td>
+    </tr>
+  <%end%>
+<%else%>
+  <tr>
+      <td colspan="6" class="text-center">キーワードが見つかりません</td>
+  </tr>
+<%end%>
+<script type="text/javascript">
+  $('#relative_tags_holder').hide();
+  get_rev_keys();
+  $('#relative_modal').on('hidden.bs.modal', function (e) {
+    get_rev_string();
+  })
+
+  function get_rev_keys(){
+    var message_id = $('.m_messages-wrapper').attr('data-message-id')
+    var url_path = "/messages/" + message_id + "/get_relative_keywords"
+    $.ajax({
+        type: "GET",
+        url: url_path,
+        contentType: "application/json",
+        success: function(data) {
+          if (data.length > 0){
+            data.forEach(function(currentValue, index, arr){
+              $('#relative_tags_holder').append(tag_to_append(currentValue[0]))
+            })
+          }
+
+        }
+    });
+  }
+
+  function get_rev_string(){
+    var message_id = $('.m_messages-wrapper').attr('data-message-id')
+    var url_path = "/messages/" + message_id + "/get_relative_keywords"
+    $.ajax({
+        type: "GET",
+        url: url_path,
+        contentType: "application/json",
+        success: function(data) {
+          if (data.length > 0){
+            var rev_keys = ''
+            data.forEach(function(currentValue, index, arr){
+              rev_keys = rev_keys + currentValue[0].name + ', '
+            })
+            $('#r_keyword_box').val('関連キーワード：' + rev_keys.replace(/,\s*$/, ""))
+          }else{
+            $('#r_keyword_box').val('');
+          }
+
+        }
+    });
+  }
+
+  function insert_relatetive_keyword(keyword_id){
+    var message_id = $('.m_messages-wrapper').attr('data-message-id')
+    var url_path = "/messages/" + message_id + "/create_relative_keyword"
+    $.ajax({
+      type: "POST",
+      url: url_path,
+      data: JSON.stringify({
+        keyword_id: keyword_id
+      }),
+      contentType: "application/json",
+      success: function(data) {
+        if ($('#r_keyword_box').val() == ''){
+          $('#r_keyword_box').val('関連キーワード：' + data.name)
+          $('#relative_tags_holder').append(tag_to_append(data))
+        }else{
+          $('#r_keyword_box').val( $('#r_keyword_box').val() + ', ' + data.name)
+          $('#relative_tags_holder').append(tag_to_append(data))
+        }
+      }
+    })
+  }
+
+  function delete_keyword(keyword_id){
+    var message_id = $('.m_messages-wrapper').attr('data-message-id')
+    var url_path = "/messages/" + message_id + "/destroy_relative_keyword"
+    $.ajax({
+      type: "DELETE",
+      url: url_path,
+      data: JSON.stringify({
+        keyword_id: keyword_id
+      }),
+      contentType: "application/json",
+      success: function(data) {
+        $.each( data, function( key, value ) {
+          $('#relative_keyword_'+ value.id).remove();
+        });
+      }
+    })
+  }
+
+  function tag_to_append(data){
+    return `<div class="keyword_tag"  id='relative_keyword_` + data.id + `'>`+ data.name +`
+                <i onclick="delete_keyword('`+ data.id +`')" class="fa fa-times" aria-hidden="true"></i>
+              </div>`
+  }
+
+  $('#relative_tags_holder').bind("DOMSubtreeModified",function(){
+    if ($('#relative_tags_holder').find('.keyword_tag').length > 0){
+      $('#relative_tags_holder').show();
+      if (!$('#relative_tags_holder span').hasClass('tags_clear_btn')){
+        $('#relative_tags_holder').append("<span onclick='delete_keyword(null)' class='tags_clear_btn'>全て解除</span>");
+      }
+    }else{
+      $('#relative_tags_holder').hide();
+      $('#relative_tags_holder').html('');
+    }
+  });
+</script>

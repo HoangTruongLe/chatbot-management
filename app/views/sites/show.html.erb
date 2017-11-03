@@ -1,0 +1,60 @@
+<div class="container contain-wrapper">
+  <div class="row">
+    <div class="col-sm-6 padding-0">
+      <h5>ID: <%= @site.id %></h5>
+    </div>
+    <div class="col-sm-6 text-right padding-0">
+      <%= link_to "#{t('.list_button')}", sites_path, class: "btn btn-cancel" %>
+      <%= link_to "#{t('.edit_button')}", edit_site_path(@site), class: "btn btn-save"%>
+    </div>
+  </div>
+  <div class="row form-input-wrapper">
+    <div class="row">
+      <div class="col-sm-3 text-right">
+        <%= "登録者: #{ @site.try(:user).try(:name) }"%>
+      </div>
+      <div class="col-sm-3 text-right">
+        <%= "登録日時: #{ format_datetime(@site.created_at) }"%>
+      </div>
+    </div>
+    <br>
+
+    <table class="table">
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.id') %></td>
+        <td class="column_data"><%= @site.id %></td>
+      </tr>
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.name') %></td>
+        <td class="column_data"><%= @site.name %></td>
+      </tr>
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.site_url') %></td>
+        <td class="column_data"><%= @site.site_url %></td>
+      </tr>
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.api_key') %></td>
+        <td class="column_data"><%= @site.api_key.access_token %></td>
+      </tr>
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.aibot_address') %></td>
+        <td class="column_data"><%= @site.aibot_address %></td>
+      </tr>
+      <tr>
+        <td class="column_header"><%= t('activerecord.attributes.site.script') %></td>
+        <td class="column_data"><pre><code class="html"><%= format_script(@site.api_key.access_token, @site.aibot_address, request.protocol + request.host_with_port) %></code></pre></td>
+      </tr>
+    </table>
+
+  </div>
+  <div class="row">
+    <div class="col-sm-6 text-left padding-0">
+      <%= link_to "#{t('.delete_button')}", @site, method: "delete", data: { confirm: t('.delete_confirm') }, class: "btn btn-cancel btn-delete" %>
+    </div>
+    <div class="col-sm-6 text-right padding-0">
+      <%= link_to "#{t('.list_button')}", sites_path, class: "btn btn-cancel" %>
+      <%= link_to "#{t('.edit_button')}", edit_site_path(@site), class: "btn btn-save" %>
+    </div>
+  </div>
+</div>
+<script>hljs.initHighlightingOnLoad();</script>

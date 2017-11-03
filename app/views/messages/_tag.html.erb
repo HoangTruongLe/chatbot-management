@@ -1,0 +1,87 @@
+<!-- Modal -->
+<div id="tag_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title text-center">タグ設定</h4>
+      </div>
+      <div class="modal-body">
+        <select id='tags_box' class="js-example-basic-multiple" width='100%' multiple="multiple">
+          <% if @tags %>
+            <% @tags.each do |t| %>
+            <option value="<%= t.id %>"><%= t.name %></option>
+            <% end %>
+          <% end %>
+        </select>
+      </div>
+      <br>
+      <div class="modal-footer">
+        <br>
+        <div class="text-center">
+          <button id="btn_tag_ok" type="button" name="button" class='btn btn-primary btn-blue-1 text-center' data-dismiss="modal">決定</button>
+        </div>
+      </div>
+      <br>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+  var message_id = $('.m_messages-wrapper').attr('data-message-id')
+  var url_path = "/messages/" + message_id + "/get_tag_messages"
+  var tags_arr = $('#tags_box').val()
+  $.ajax({
+    type: "GET",
+    url: url_path,
+    contentType: "application/json",
+    success: function(data) {
+      if (data.length > 0){
+        data.forEach(function(currentValue, index, arr){
+          var option = new Option(currentValue[0].name, currentValue[0].id);
+          option.selected = true;
+          $("#tags_box").append(option);
+          $("#tags_box").trigger("change");
+        })
+      }
+    }
+  })
+
+  $("#tags_box").select2({
+    placeholder: "タグを選択してください",
+    allowClear: true,
+    width: '100%'
+  });
+
+  $('#tag_modal').on('hidden.bs.modal', function (e) {
+    update_message_tag();
+  })
+
+  function update_message_tag(){
+    var url_path = "/messages/" + message_id + "/update_message_tag"
+    var tags_arr = $('#tags_box').val()
+    $.ajax({
+      type: "PUT",
+      url: url_path,
+      data: JSON.stringify({
+        tags: tags_arr
+      }),
+      contentType: "application/json",
+      success: function(data) {
+        if (data){
+          var tags = ''
+          data.forEach(function (value, i) {
+            tags = tags + value + ', '
+          });
+          $('#tag_box').val('タグ：'+ tags.replace(/,\s*$/, ""))
+        }else{
+          $('#tag_box').val('')
+        }
+      }
+    })
+  }
+  $('#btn_tag_ok').on('click',function(){
+    update_message_tag();
+  })
+})
+</script>

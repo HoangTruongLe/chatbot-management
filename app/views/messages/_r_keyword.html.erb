@@ -1,0 +1,55 @@
+<!-- Modal -->
+<div id="relative_modal" class="modal fade" role="dialog">
+  <div class="vertical-alignment-helper">
+    <div class="modal-dialog vertical-align-center">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <br>
+          <h4 class="modal-title">関連キーワード</h4>
+          <div id='relative_tags_holder' class='search-border tags_holder'></div>
+          <div class='row search-border'>
+            <%= search_form_for @k, remote: true, url: master_keywords_path, method: :get do |f|%>
+            <div class="form-inline">
+              <%= f.search_field :master_category_name_or_id_or_name_cont, placeholder: 'ID、キーワード名、カテゴリ名', class: 'form-control input-search-relative', style:'width:70%' %>
+              <%= link_to 'クリア', 'javascript:void(0);', class: 'btn btn-cancel clear-input-search-r btn-gray btn-clear-filter', style: 'color: #000; width:50px'%>
+              <%= f.submit '検索', class: 'btn btn-primary', style: 'width:50px'%>
+            </div>
+            <%end%>
+          </div>
+        </div>
+        <div class="modal-body">
+          <table class='table table-striped table-bordered '>
+            <thead>
+              <tr class="active">
+                <th width="10%" class="text-center"><%= sort_link(@k, :id) %></th>
+                <th width="40%" class="text-center">
+                  <%=t('activerecord.attributes.keyword.name')%>
+                </th>
+                <th width="40%" class="text-center">
+                  <%=t('activerecord.attributes.keyword.master_category')%>
+                </th>
+                <th width="10%" class="text-center">
+                  <%=t('activerecord.attributes.keyword.action')%>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="r_keywords">
+              <%= render 'r_keyword_table' %>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <br>
+          <div class="text-center">
+            <div id="r_paginator">
+              <%= paginate @keywords, :remote => true %>
+            </div>
+            <button id="btn_relative_ok" type="button" name="button" class='btn btn-primary btn-blue-1 text-center' data-dismiss="modal">決定</button>
+          </div>
+        </div>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>

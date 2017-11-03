@@ -1,0 +1,36 @@
+<% if @keywords.size > 0 %>
+  <% @keywords.each do |keyword| %>
+    <tr>
+      <td class="text-center"><%= keyword.id %></td>
+      <td><%= keyword.name %></td>
+      <td><%= keyword.try(:master_category).try(:name) %></td>
+      <td class="text-center">
+        <button class='btn btn-primary btn-blue btn-action' onclick="insert_primary_keyword('<%= keyword.id %>')">
+          選択
+        </button>
+      </td>
+    </tr>
+  <%end%>
+<%else%>
+  <tr>
+      <td colspan="6" class="text-center">キーワードが見つかりません</td>
+  </tr>
+<%end%>
+<script type="text/javascript">
+  function insert_primary_keyword(keyword_id){
+    var message_id = $('.m_messages-wrapper').attr('data-message-id')
+    var url_path = "/messages/" + message_id + "/update_primary_keyword"
+    $.ajax({
+      type: "PUT",
+      url: url_path,
+      data: JSON.stringify({
+        keyword_id: keyword_id
+      }),
+      contentType: "application/json",
+      success: function(data) {
+        $('#primary_modal').modal('hide')
+        $('#p_keyword_box').val('主キーワード※：' + data.keyword)
+      }
+    })
+  }
+</script>
